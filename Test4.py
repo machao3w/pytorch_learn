@@ -40,3 +40,43 @@ def cross_entropy(y_hat, y):
 
 
 print(cross_entropy(y_hat, y))
+
+
+def accuracy(y_hat, y):
+    """ 计算预测正确的数量 """
+    if len(y_hat.shape) > 1 and y_hat.shape[1] > 1:
+        # argmax
+        y_hat = y_hat.argmax(dim=1)
+        # 数据类型比较 bool的tensor
+    cmp = y_hat.type(y.dtype) == y
+    # 返回所有预测正确的样本数
+    return float(cmp.type(y.dtype).sum())
+
+
+print(accuracy(y_hat, y) / len(y))
+
+
+class Accumulator:
+    """ 累加器 在n个变量上累加 """
+
+    def __init__(self, n):
+        self.data = [0, 0] * n
+
+    def add(self, *args):
+        self.data = [a + float(b) for a, b in zip(self.data, args)]
+
+    def reset(self):
+        self.data = [0, 0] * len(self.data)
+
+    def __getitem__(self, idx):
+        return self.data[idx]
+
+
+def evaluate_accuracy(net, data_iter):
+    """ 计算在指定数据集上模型的精度 """
+    if isinstance(net, torch.nn.Module):
+        net.eval()
+    metric = Accumulator(2)
+    for x, y in data_iter:
+        metric.add(accuracy(net(x), y), y.numel())
+    return metric[0] / metric[1] # 分类正确的样本数 总样本数
