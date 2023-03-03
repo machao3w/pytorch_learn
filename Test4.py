@@ -1,6 +1,7 @@
 # softmax回归 从零开始实现
 import torch
 from IPython import display
+from torch import nn
 from d2l import torch as d2l
 
 batch_size = 256
@@ -15,11 +16,19 @@ w = torch.normal(0, 0.01, size=(num_inputs, num_outputs), requires_grad=True)
 # 偏移量
 b = torch.zeros(num_outputs, requires_grad=True)
 
+x = torch.tensor([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
+x.sum(0, keepdim=True), x.sum(1, keepdim=True)
+
 
 def softmax(x):
     x_exp = torch.exp(x)
     partition = x_exp.sum(1, keepdim=True)
     return x_exp / partition  # 广播机制
+
+
+x = torch.normal(0, 1, (2, 5))
+x_prob = softmax(x)
+x_prob, x_prob.sum(1)
 
 
 def net(x):
@@ -79,4 +88,39 @@ def evaluate_accuracy(net, data_iter):
     metric = Accumulator(2)
     for x, y in data_iter:
         metric.add(accuracy(net(x), y), y.numel())
-    return metric[0] / metric[1] # 分类正确的样本数 总样本数
+    return metric[0] / metric[1]  # 分类正确的样本数 总样本数
+
+
+# net = nn.Sequential(nn.Flatten(), nn.Linear(784, 10))
+
+
+if __name__ == '__main__':
+    print(evaluate_accuracy(net, test_iter))
+
+
+def train_epoch_ch3(net, train_iter, loss, updater):
+    if isinstance(net, torch.nn.Module):
+        net.train()
+    metric = Accumulator(3)
+    for x, y in train_iter:
+        y_hat = net(x)
+        l = loss(y_hat, y)
+        if isinstance(updater, torch.optim.Optimizer):
+            updater.zero_grad()
+            l.backward()
+            updater.step()
+            metric.add(
+                float(l) * len(y), accuracy(y_hat, y), y.size().numel()
+            )
+        else:
+            l.sum().backward()
+            updater(x.shape[0])
+            metric.add(
+                float(l) * len(y), accuracy(y_hat, y), y.size().numel()
+            )
+    # 损失累加 / 样本数  分类正确的 / 样本数
+    return metric[0] / metric[2], metric[1] / metric[2]
+
+
+def train_ch3():
+    return
