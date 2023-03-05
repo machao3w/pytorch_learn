@@ -1,6 +1,13 @@
 import torch
 
 x = torch.randn(2, 4)
+w = torch.randn(4,6)
+b = torch.zeros(4)
+x1 = torch.randn(2,2)
+x1 = torch.reshape(x1,(-1,4))
+a1 = x1 @ w
+a2 = torch.matmul(x1,w)
+print(a1 == a2)
 print(x)
 
 y0 = torch.argmax(x, dim=1)
