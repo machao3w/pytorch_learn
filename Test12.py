@@ -46,3 +46,9 @@ print(X)
 K = torch.tensor([[1.0, -1.0]])
 Y = corr2d(X, K)
 print(Y)
+
+# 转置 X.t()
+
+
+# 学习卷积核
+conv2d = nn.Conv2d(1)
