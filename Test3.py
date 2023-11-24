@@ -50,6 +50,7 @@ def get_dataloader_workers():
 
 
 if __name__ == '__main__':
+    torch.device()
     # 由于使用了多线程 所以要放入main函数里运行
     train_iter = data.DataLoader(mnist_train, batch_size, shuffle=True, num_workers=get_dataloader_workers())
     timer = d2l.Timer()
